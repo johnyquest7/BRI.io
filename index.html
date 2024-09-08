@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Body Roundness Index Calculator</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #1976d2;
+            font-weight: 300;
+            margin-bottom: 1rem;
+        }
+        .input-field {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        .input-field input {
+            width: 100%;
+            padding: 0.5rem 0;
+            font-size: 1rem;
+            border: none;
+            border-bottom: 1px solid #9e9e9e;
+            outline: none;
+            transition: border-bottom-color 0.3s;
+        }
+        .input-field input:focus {
+            border-bottom-color: #1976d2;
+        }
+        .input-field label {
+            position: absolute;
+            top: 0.5rem;
+            left: 0;
+            font-size: 1rem;
+            color: #9e9e9e;
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .input-field input:focus + label,
+        .input-field input:valid + label {
+            top: -1.2rem;
+            font-size: 0.8rem;
+            color: #1976d2;
+        }
+        .input-field .material-icons {
+            position: absolute;
+            right: 0;
+            top: 0.5rem;
+            color: #9e9e9e;
+            cursor: help;
+        }
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #1565c0;
+        }
+        #result {
+            margin-top: 1.5rem;
+            font-weight: 500;
+        }
+        #recommendation {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+            margin-bottom: 1rem;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        .units-label {
+            display: inline-block;
+            margin-left: 1rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Body Roundness Index Calculator</h1>
+        <label class="switch">
+            <input type="checkbox" id="unitToggle">
+            <span class="slider"></span>
+        </label>
+        <span class="units-label">CM / Inches</span>
+        <form id="briForm">
+            <div class="input-field">
+                <input type="number" id="height" step="0.01" required>
+                <label for="height">Height (<span class="unit">cm</span>)</label>
+                <i class="material-icons" title="Enter your height">info</i>
+            </div>
+            <div class="input-field">
+                <input type="number" id="waist" step="0.1" required>
+                <label for="waist">Waist Circumference (<span class="unit">cm</span>)</label>
+                <i class="material-icons" title="Measure your waist circumference at the navel level">info</i>
+            </div>
+            <button type="submit">Calculate BRI</button>
+        </form>
+        <div id="result"></div>
+        <div id="recommendation"></div>
+    </div>
+
+    <script>
+        const unitToggle = document.getElementById('unitToggle');
+        const heightInput = document.getElementById('height');
+        const waistInput = document.getElementById('waist');
+        const unitLabels = document.querySelectorAll('.unit');
+
+        unitToggle.addEventListener('change', function() {
+            const unit = this.checked ? 'inches' : 'cm';
+            unitLabels.forEach(label => label.textContent = unit);
+            
+            // Convert values when toggling
+            if (heightInput.value) {
+                heightInput.value = this.checked ? (parseFloat(heightInput.value) / 2.54).toFixed(2) : (parseFloat(heightInput.value) * 2.54).toFixed(2);
+            }
+            if (waistInput.value) {
+                waistInput.value = this.checked ? (parseFloat(waistInput.value) / 2.54).toFixed(2) : (parseFloat(waistInput.value) * 2.54).toFixed(2);
+            }
+        });
+
+        document.getElementById('briForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            let height = parseFloat(heightInput.value);
+            let waist = parseFloat(waistInput.value);
+            
+            // Convert to meters if input is in inches
+            if (unitToggle.checked) {
+                height = height * 0.0254;
+                waist = waist * 0.0254;
+            } else {
+                height = height / 100;
+                waist = waist / 100;
+            }
+            
+            const bri = calculateBRI(height, waist);
+            document.getElementById('result').textContent = `Your Body Roundness Index is: ${bri.toFixed(2)}`;
+            displayRecommendation(bri);
+        });
+
+        function calculateBRI(height, waist) {
+            return 364.2 - (365.5 * Math.sqrt(1 - ((waist / (2 * Math.PI))**2 / (0.5 * height)**2)));
+        }
+
+        function displayRecommendation(bri) {
+            let recommendation = '';
+            if (bri < 4.0) {
+                recommendation = 'Your BRI indicates normal weight. Maintain a healthy lifestyle with balanced diet and regular exercise.';
+            } else if (bri >= 4.0 && bri < 5.0) {
+                recommendation = 'Your BRI suggests you may be overweight. Consider consulting with a healthcare professional about healthy lifestyle changes.';
+            } else {
+                recommendation = 'Your BRI indicates obesity. It\'s recommended to consult with a healthcare professional for personalized advice on improving your health.';
+            }
+            document.getElementById('recommendation').textContent = recommendation;
+        }
+    </script>
+</body>
+</html>
